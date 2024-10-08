@@ -1,0 +1,443 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 75,
+   "id": "6543ebeb-b133-4017-93cb-fa247b49a4ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 76,
+   "id": "7f63d589-23a5-4319-bd0c-7b11fe944778",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ecom= pd.ExcelFile('Ecommerce_data.xlsx')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "id": "e5a4e1bf-3332-48bc-b8e8-34c6da69e333",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<pandas.io.excel._base.ExcelFile at 0x27d5de9da50>"
+      ]
+     },
+     "execution_count": 77,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ecom"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 78,
+   "id": "75cc6bc0-9415-4aa5-8580-e2c65ba28c0b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['Orders', 'Returns', 'People']\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(ecom.sheet_names)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de1cd6a8-b526-44c1-9e5d-bf979f6f9918",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "orders_df = pd.read_excel(ecom, 'Orders')\n",
+    "returns_df = pd.read_excel(ecom, 'Returns')\n",
+    "people_df = pd.read_excel(ecom, 'People')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e526b841-200f-4128-b073-4bb61582f84c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "orders_df.head(), returns_df.head(), people_df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "14f21198-d118-4265-bbd0-ee7ca5eafd48",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "concat_df = pd.merge(orders_df, returns_df, on='Order ID')\n",
+    "concat_df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0a699087-8d87-4713-90e0-1c50e1b0e8ad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "concat_df.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "555095f6-1696-41d2-8c0c-f95391e95950",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "concat_df.isnull().any().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0826ecce-5512-4e89-b9e6-ae56dbedd42f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EC2 = concat_df.dropna(axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "624e18fe-57d2-40d5-b2d8-28da288e6e49",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EC2.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc76de6b-7c21-4ee6-adfc-4cdf115a44fc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "list(EC2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "df5b5a6a-66ba-4f8d-83a4-abe4e70b37bc",
+   "metadata": {},
+   "source": [
+    "# 1.What is the total value of the order that was returned?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "646f10ce-8e29-45f2-86aa-a5734df813cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "total_returned_value = EC2['Sales'].sum()\n",
+    "print('The Total Returned Value is',total_returned_value)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8fbf2dec-504c-4df3-a045-2cddc8006852",
+   "metadata": {},
+   "source": [
+    "# 2.What is the total returned value by region?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7360661d-3837-4b73-bb3c-69cb70516f4f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "returned_value_by_region = EC2.groupby(['Region_y'])[['Sales']].sum()\n",
+    "returned_value_by_region"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fa339727-ecf8-4689-ae4f-4787811e2eff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import seaborn as sns"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67993c0f-1809-49d3-93eb-870599c9bd7a",
+   "metadata": {},
+   "source": [
+    "# 3. What is the total returned value for category and sub_category using product id?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8ca3aff3-99c9-4151-9d0c-0f56048175cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EC2 = pd.ExcelFile('Ecommerce_data.xlsx')\n",
+    "EC2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2f16db61-3cae-4a05-a2fc-9e2af987c1cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "orders_df = pd.read_excel(EC2, 'Orders')\n",
+    "returns_df = pd.read_excel(EC2, 'Returns')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7dbe3860-0244-41cc-89f1-a946f9fc447e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "merged_df = pd.merge(orders_df, returns_df, on='Order ID')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fdc0d0ea-4e88-4e89-ad83-b02255336638",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "returned_value_by_category = merged_df.groupby(['Category', 'Sub-Category'])[['Sales']].sum()\n",
+    "returned_value_by_category\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e027b985-2de1-4365-ae4a-7af5b3122441",
+   "metadata": {},
+   "source": [
+    "# 4. What is total number of products returned whose unit price is more than 100 dollars?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "98003630-58c5-4ae8-8632-d2074a65793d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EC2['Unit Price'] = EC2['Sales'] / EC2['Quantity']\n",
+    "EC2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f0a0484c-15b9-4982-b7b9-f181c7c53f22",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EC2 = EC2[EC2['Unit Price'] > 100]\n",
+    "total_returned_products = EC2['Quantity'].sum()\n",
+    "print('The Total Returned Products is', total_returned_products)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "655a9a85-562e-4d9f-b837-e8aec582f674",
+   "metadata": {},
+   "source": [
+    "# 5. How many of the orders deliverd on the same day, 7days, 15days and >30 days?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5b6465d4-b32f-410d-984b-ba3bc14195cc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EC2['delivery_days'] = (EC2['Ship Date'] - EC2['Order Date']).dt.days\n",
+    "EC2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf4144c9-499b-468d-aa6d-7268ac59e3b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "same_day = EC2[EC2['delivery_days'] == 0].shape[0]\n",
+    "within_7_days = EC2[(EC2['delivery_days'] > 0) & (EC2['delivery_days'] <= 7)].shape[0]\n",
+    "within_15_days = EC2[(EC2['delivery_days'] > 7) & (EC2['delivery_days'] <= 15)].shape[0]\n",
+    "more_than_30_days = EC2[EC2['delivery_days'] > 30].shape[0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d880185-7c1b-4420-b690-0fc9559b748d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(f\"Same Day: {same_day}\")\n",
+    "print(f\"Within 7 Days: {within_7_days}\")\n",
+    "print(f\"Within 15 Days: {within_15_days}\")\n",
+    "print(f\"More than 30 Days: {more_than_30_days}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee83b914-7973-4dba-9164-a90c021328db",
+   "metadata": {},
+   "source": [
+    "# 6. Check the relationship between price and quantity?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f765d0c3-b602-4e3b-ab3b-0300073fd2e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from scipy.stats import pearsonr"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d2b5c327-20f3-42cd-9b28-79a536749257",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pearsonr(EC['Unit Price'],EC['Quantity'])\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d5e76e4-80ec-4ff8-aa09-18504a348f90",
+   "metadata": {},
+   "source": [
+    "## Inference \n",
+    "The r value = -0.028 so it is a negative correlation. It Indicates almost no linear relationship between the unit price and quantity\r\n",
+    "A negative value suggests that there might be a very weak inverse relationship, meaning as the price increases, the quantity might decrease slightly, but the effect is negligible. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3150947c-4c1c-41f1-83bd-1eb824a1a916",
+   "metadata": {},
+   "source": [
+    "# 7. Use the calculation from question 5 and order priority. Check is there any relationship between order priority and days taken."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b43156d0-24c1-4f9c-966b-1fea97dc744d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from scipy import stats"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b26d16a-97ef-4ed7-8670-d874fcc8bfe7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "priority_delivery_stats = EC.groupby('Order Priority')['delivery_days'].describe()\n",
+    "print(priority_delivery_stats)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a3c8b9cb-f3d0-4791-be1f-10520f18a1a5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "anova_result = stats.f_oneway(\n",
+    "    EC2[EC2['Order Priority'] == 'Low']['delivery_days'],\n",
+    "    EC2[EC2['Order Priority'] == 'Medium']['delivery_days'],\n",
+    "    EC2[EC2['Order Priority'] == 'High']['delivery_days'],\n",
+    "    EC2[EC2['Order Priority'] == 'Critical']['delivery_days'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5e6c777-1f48-4662-b65c-5461302a6b52",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(f\"ANOVA result: {anova_result}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3db97deb-5091-4db4-94cd-9784beba67e6",
+   "metadata": {},
+   "source": [
+    "# The p-value from the ANOVA test is less than 0.05, it indicates a statistically significant difference in delivery times between different order priority levels.\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
